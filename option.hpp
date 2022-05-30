@@ -78,6 +78,11 @@ public:
     has_val = other.has_val;
   }
 
+  ~Option() noexcept {
+    val.n_val = Null;
+    has_val = false;
+  }
+
   /**
    * @brief Assign reference to another const Option instance
    *
