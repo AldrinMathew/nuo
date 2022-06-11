@@ -162,6 +162,37 @@ public:
   }
 
   /**
+   * @brief Map each element of this vector to a new datatype and convert the
+   * resultant sequence to a new vector
+   *
+   * @tparam K The type of element of the resultant vector
+   * @param fn
+   * @return Vec<K>
+   */
+  template <typename K> Vec<K> mapEach(K (*fn)(const T &)) {
+    auto result = Vec<K>();
+    result.reallocate(len);
+    for (unsigned i = 0; i < len; i++) {
+      result.push(fn(start[i]));
+    }
+    return result;
+  }
+
+  /**
+   * @brief Number of elements to allocate space for. If this is called when the
+   * vector is not empty, all elements will be cleared.
+   *
+   * @param count Number of elements
+   */
+  void reallocate(unsigned count) {
+    forEach([](const T &elem) { elem.~T(); });
+    free(start);
+    start = (T *)malloc(count * sizeof(T));
+    len = 0;
+    buff_len = count;
+  }
+
+  /**
    * @brief Execute the provided function for each and every element in this
    * vector
    *
