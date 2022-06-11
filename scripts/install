@@ -1,0 +1,1 @@
+sudo cmake --build build/ --target install
