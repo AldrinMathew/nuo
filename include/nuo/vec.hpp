@@ -40,6 +40,15 @@ public:
   Vec() : start(nullptr), len(0), buff_len(0) {}
 
   /**
+   * @brief Create a vector with space allocated for the provided number of
+   * elements
+   *
+   * @param count Number of elements to allocate space for
+   */
+  Vec(unsigned count)
+      : start((T *)malloc(count * sizeof(T))), len(0), buff_len(count) {}
+
+  /**
    * @brief Create a vector containing the elements in the provided initialiser
    * list
    *
@@ -170,8 +179,7 @@ public:
    * @return Vec<K>
    */
   template <typename K> Vec<K> mapEach(K (*fn)(const T &)) {
-    auto result = Vec<K>();
-    result.reallocate(len);
+    auto result = Vec<K>(len);
     for (unsigned i = 0; i < len; i++) {
       result.push(fn(start[i]));
     }
