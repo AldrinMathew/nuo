@@ -149,6 +149,33 @@ public:
   }
 
   /**
+   * @brief Execute the provided function for each and every element in this
+   * vector
+   *
+   * @param fn The function that should be executed. The first argument is the
+   * reference to a const value of type T
+   */
+  void forEach(void (*fn)(const T &)) {
+    for (unsigned i = 0; i < len; i++) {
+      fn(start[i]);
+    }
+  }
+
+  /**
+   * @brief Execute the provided function for each and every element in this
+   * vector
+   *
+   * @param fn The function that should be executed. This should have 2
+   * arguments. The first one is the reference to a const value of type T, and
+   * the second argument is the index of the element in the vector
+   */
+  void forEachIndex(void (*fn)(const T &, unsigned)) {
+    for (unsigned i = 0; i < len; i++) {
+      fn(start[i], i);
+    }
+  }
+
+  /**
    * @brief Get the buffer length of the vector. This represents the number of
    * elements for which the space has already been allocated.
    *
