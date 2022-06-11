@@ -49,6 +49,22 @@ public:
       : start((T *)malloc(count * sizeof(T))), len(0), buff_len(count) {}
 
   /**
+   * @brief Copy constructor for Vec<T>
+   *
+   * @param other The reference to the other Vec instance
+   */
+  Vec(const Vec &other)
+      : start(other.start), len(other.len), buff_len(other.buff_len) {}
+
+  /**
+   * @brief Move constructor for Vec<T>
+   *
+   * @param other The temporary value
+   */
+  Vec(const Vec &&other)
+      : start(other.start), len(other.len), buff_len(other.buff_len) {}
+
+  /**
    * @brief Create a vector containing the elements in the provided initialiser
    * list
    *
@@ -221,6 +237,37 @@ public:
    * @return unsigned
    */
   unsigned get_buffer_length() const noexcept { return buff_len; }
+
+  /**
+   * @brief Copy assignment
+   *
+   * @param other Other value
+   *
+   */
+  void operator=(const Vec<T> &other) noexcept {
+    for (unsigned i = 0; i < len; i++) {
+      start[i].~T();
+    }
+    free(start);
+    start = other.start;
+    len = other.len;
+    buff_len = other.buff_len;
+  }
+
+  /**
+   * @brief Move assignment
+   *
+   * @param other Other value
+   */
+  void operator=(Vec<T> &&other) noexcept {
+    for (unsigned i = 0; i < len; i++) {
+      start[i].~T();
+    }
+    free(start);
+    start = other.start;
+    len = other.len;
+    buff_len = other.buff_len;
+  }
 
   ~Vec() noexcept {
     for (unsigned i = 0; i < len; i++) {
