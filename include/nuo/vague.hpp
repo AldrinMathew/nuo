@@ -50,38 +50,38 @@ private:
   Maybe<Problem> problem;
 
 public:
+  Vague() : value(Null()), problem(Null()) {}
+
   /**
    * @brief Create a Vague instance with a valid value of the associated type
    *
    * @param value Value of the associated type
    */
-  Vague(T value) noexcept { this->value = value; }
+  Vague(T _value) noexcept : value(_value), problem(Null()) {}
 
   /**
    * @brief Create a Vague instance with a Problem
    *
    * @param value An instance of Problem
    */
-  Vague(Problem problem) noexcept { this->problem = problem; }
+  Vague(Problem _problem) noexcept : value(Null()), problem(_problem) {}
 
   /**
    * @brief Copy constructor for Vague
    *
    * @param other Reference to the other Vague instance (lvalue)
    */
-  Vague(Vague &other) noexcept {
-    this->value = other.value;
-    this->problem = other.problem;
-  }
+  Vague(const Vague &other) noexcept
+      : value(other.value), problem(other.problem) {}
 
   /**
    * @brief Move constructor for Vague
    *
    * @param other Reference to the other Vague instance (rvalue)
    */
-  Vague(Vague &&other) noexcept {
-    this->value = other.value;
-    this->problem = other.problem;
+  Vague(Vague &&other) noexcept : value(other.value), problem(other.problem) {
+    other.value = Null();
+    other.problem = Null();
   }
 
   /**
@@ -90,11 +90,13 @@ public:
    */
   ~Vague() noexcept {
     if (has()) {
-      val.t_val.~T();
-    } else {
-      val.p_val.~Problem();
+      value.get().~T();
+      value = Null();
     }
-    has_val = false;
+    if (hasProblem()) {
+      problem.get().~Problem();
+      problem = Null();
+    }
   }
 
   /**
@@ -103,8 +105,8 @@ public:
    * @param other
    */
   void operator=(const Vague<T> &other) noexcept {
-    val = other.val;
-    has_val = other.has_val;
+    value = other.value;
+    problem = other.problem;
   }
 
   /**
@@ -112,20 +114,14 @@ public:
    *
    * @param other_val Value of the associated type
    */
-  void operator=(const T other_val) noexcept {
-    val = other_val;
-    has_val = true;
-  }
+  void operator=(const T other_val) noexcept { value = other_val; }
 
   /**
    * @brief Assign another problem
    *
    * @param other_val A Problem value
    */
-  void operator=(const Problem other_val) noexcept {
-    val.p_val = other_val;
-    has_val = false;
-  }
+  void operator=(const Problem other_val) noexcept { problem = other_val; }
 
   /**
    * @brief Whether there is proper value of the associated type stored in this

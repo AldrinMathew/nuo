@@ -43,9 +43,9 @@ public:
    *
    * @param value Value of type T
    */
-  Maybe(T value) noexcept {
-    has_val = true;
+  Maybe(const T value) noexcept {
     val.t_val = value;
+    has_val = true;
   }
 
   /**
@@ -53,7 +53,7 @@ public:
    *
    * @param value An instance of Null. Defaults to null
    */
-  Maybe(Null value = Null()) noexcept {
+  Maybe(const Null value = Null()) noexcept {
     has_val = false;
     val.n_val = value;
   }
@@ -63,7 +63,7 @@ public:
    *
    * @param other Reference to the other Maybe instance (lvalue)
    */
-  Maybe(Maybe<T> &other) noexcept {
+  Maybe(const Maybe<T> &other) noexcept {
     val = other.val;
     has_val = other.has_val;
   }
@@ -76,6 +76,8 @@ public:
   Maybe(Maybe<T> &&other) noexcept {
     val = other.val;
     has_val = other.has_val;
+    other.val.n_val = Null();
+    other.has_val = false;
   }
 
   /**
@@ -109,6 +111,8 @@ public:
   void operator=(Maybe<T> &&other) noexcept {
     val = other.val;
     has_val = other.has_val;
+    other.val.n_val = Null();
+    other.has_val = false;
   }
 
   /**

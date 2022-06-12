@@ -1,4 +1,5 @@
 #include "nuo/maybe.hpp"
+#include "nuo/vague.hpp"
 #include "nuo/vec.hpp"
 #include <iostream>
 
@@ -8,7 +9,7 @@
 
 #define ASSERT(x)                                                              \
   std::cout << "   " << ((x) ? "\e[0;32m" : "\e[1;31m")                        \
-            << ((x) ? "true" : "false") << "   "                               \
+            << ((x) ? "success" : "failure") << "   "                          \
             << "\e[0m" << STRINGIFY(x) << "\n";
 
 #define GROUP(name)                                                            \
@@ -20,6 +21,7 @@ int main() {
   using nuo::Maybe;
   using nuo::Vec;
   auto vec1 = Vec<int>({50, 60});
+  auto vec2 = Vec<int>({100, 300});
   auto opt1 = Maybe<int>();
 
   GROUP("Vector")
@@ -27,11 +29,21 @@ int main() {
   ASSERT(vec1[2] == 324) vec1.push(5434);
   ASSERT(vec1[3] == 5434)
   ASSERT(vec1.length() == 4)
+  vec1.pushAll(vec2);
+  ASSERT(vec1.length() == 6)
+  vec1.pushAll({340, 930});
+  ASSERT(vec1.length() == 8)
+  vec1 = vec1 + vec2;
+  ASSERT(vec1.length() == 10)
 
   GROUP("Maybe")
   ASSERT(opt1.has() == false)
+  ASSERT(opt1.getOr(10) == 10)
   opt1 = 5;
   ASSERT(opt1.has() == true)
+  ASSERT(opt1.getOr(10) == 5)
+
+  GROUP("Vague")
 
   /* Tests complete */
   return 0;

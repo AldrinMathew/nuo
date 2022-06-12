@@ -32,6 +32,13 @@ private:
    */
   unsigned buff_len;
 
+  T *allocate_space(unsigned count) { return (T *)malloc(count * sizeof(T)); }
+
+  void free_space() {
+    free(start);
+    start = nullptr;
+  }
+
 public:
   /**
    * @brief Create an empty vector
@@ -45,24 +52,33 @@ public:
    *
    * @param count Number of elements to allocate space for
    */
-  Vec(unsigned count)
-      : start((T *)malloc(count * sizeof(T))), len(0), buff_len(count) {}
+  Vec(unsigned count) : start(allocate_space(count)), len(0), buff_len(count) {}
 
   /**
    * @brief Copy constructor for Vec<T>
    *
    * @param other The reference to the other Vec instance
    */
-  Vec(const Vec &other)
-      : start(other.start), len(other.len), buff_len(other.buff_len) {}
+  Vec(const Vec<T> &other) : start(nullptr), len(0), buff_len(0) {
+    start = allocate_space(other.len);
+    for (unsigned i = 0; i < len; i++) {
+      start[i] = other.at(i).get();
+    }
+    len = other.len;
+    buff_len = len;
+  }
 
   /**
    * @brief Move constructor for Vec<T>
    *
    * @param other The temporary value
    */
-  Vec(const Vec &&other)
-      : start(other.start), len(other.len), buff_len(other.buff_len) {}
+  Vec(Vec<T> &&other)
+      : start(other.start), len(other.len), buff_len(other.buff_len) {
+    other.start = nullptr;
+    other.len = 0;
+    other.buff_len = 0;
+  }
 
   /**
    * @brief Create a vector containing the elements in the provided initialiser
@@ -71,7 +87,7 @@ public:
    * @param list
    */
   Vec(std::initializer_list<T> list) : start(nullptr), len(0), buff_len(0) {
-    start = (T *)malloc(list.size() * sizeof(T));
+    start = allocate_space(list.size());
     len = list.size();
     buff_len = len;
     unsigned i = 0;
@@ -89,28 +105,63 @@ public:
    */
   void push(T element) noexcept {
     if ((!start) || (buff_len == 0)) {
-      start = (T *)malloc(2 * sizeof(T));
+      start = allocate_space(2);
       len = 0;
       buff_len = 2;
     }
     // If there is no more space, move the elements to a new memory
     // location with space for more elements
     if ((len == buff_len) && start) {
-      buff_len = 2 * buff_len;
-      auto new_start = (T *)malloc(sizeof(T) * buff_len);
+      buff_len = 2 * ((buff_len > 0) ? buff_len : 1);
+      auto new_start = allocate_space(buff_len);
       for (unsigned i = 0; i < len; i++) {
         new_start[i] = start[i];
       }
-      free(start);
+      free_space();
       start = new_start;
     }
     start[len] = element;
     len++;
   }
 
+  void pushAll(std::initializer_list<T> elements) noexcept {
+    for (auto elem : elements) {
+      push(elem);
+    }
+  }
+
+  void pushAll(const Vec<T> &other) noexcept {
+    for (unsigned i = 0; i < other.len; i++) {
+      push(other.at(i).get());
+    }
+  }
+
+  void pushAll(Vec<T> &&other) noexcept {
+    for (unsigned i = 0; i < other.len; i++) {
+      push(other.at(i).get());
+    }
+    other.start = nullptr;
+    other.len = nullptr;
+    other.buff_len = nullptr;
+  }
+
+  Vec<T> operator+(const Vec<T> other) const noexcept {
+    auto result = Vec<T>(*this);
+    result.pushAll(other);
+    return result;
+  }
+
+  Vec<T> operator+(const std::initializer_list<T> elements) const noexcept {
+    auto result = Vec<T>(*this);
+    for (auto elem : elements) {
+      result.push(elem);
+    }
+    return result;
+  }
+
   /**
-   * @brief Pop the last element of the vector. This calls the destructor of the
-   * last element.
+   * @brief Pop the last element of the vector. This calls the destructor of
+   * the last element.
    *
    */
   void pop() noexcept {
@@ -164,12 +215,14 @@ public:
    *
    */
   void clear() noexcept {
-    for (unsigned i = 0; i < len; i++) {
-      start[i].~T();
+    if (start) {
+      for (unsigned i = 0; i < len; i++) {
+        start[i].~T();
+      }
+      free_space();
     }
     len = 0;
     buff_len = 0;
-    free(start);
     start = nullptr;
   }
 
@@ -209,9 +262,12 @@ public:
    * @param count Number of elements
    */
   void reallocate(unsigned count) {
-    forEach([](const T &elem) { elem.~T(); });
-    free(start);
-    start = (T *)malloc(count * sizeof(T));
+    if (start) {
+      forEach([](const T &elem) { elem.~T(); });
+      free_space();
+      start = nullptr;
+    }
+    start = allocate_space(count);
     len = 0;
     buff_len = count;
   }
@@ -245,13 +301,12 @@ public:
    *
    */
   void operator=(const Vec<T> &other) noexcept {
+    start = allocate_space(other.len);
     for (unsigned i = 0; i < len; i++) {
-      start[i].~T();
+      start[i] = other[i];
     }
-    free(start);
-    start = other.start;
     len = other.len;
-    buff_len = other.buff_len;
+    buff_len = len;
   }
 
   /**
@@ -260,22 +315,23 @@ public:
    * @param other Other value
    */
   void operator=(Vec<T> &&other) noexcept {
-    for (unsigned i = 0; i < len; i++) {
-      start[i].~T();
-    }
-    free(start);
     start = other.start;
     len = other.len;
     buff_len = other.buff_len;
+    other.start = nullptr;
+    other.len = 0;
+    other.buff_len = 0;
   }
 
   ~Vec() noexcept {
-    for (unsigned i = 0; i < len; i++) {
-      start[i].~T();
+    if (start) {
+      for (unsigned i = 0; i < len; i++) {
+        start[i].~T();
+      }
+      free_space();
     }
     len = 0;
     buff_len = 0;
-    free(start);
     start = nullptr;
   }
 };
