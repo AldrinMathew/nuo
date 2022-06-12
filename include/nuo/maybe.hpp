@@ -92,11 +92,21 @@ public:
   }
 
   /**
-   * @brief Assign reference to another const Maybe instance
+   * @brief Copy assignment operator
    *
    * @param other
    */
   void operator=(const Maybe<T> &other) noexcept {
+    val = other.val;
+    has_val = other.has_val;
+  }
+
+  /**
+   * @brief Move assignment operator
+   *
+   * @param other The temporary value (rvalue)
+   */
+  void operator=(Maybe<T> &&other) noexcept {
     val = other.val;
     has_val = other.has_val;
   }
