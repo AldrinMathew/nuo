@@ -50,7 +50,7 @@ private:
   Maybe<Problem> problem;
 
 public:
-  Vague() : value(Null()), problem(Null()) {}
+  Vague() noexcept : value(Null()), problem(Null()) {}
 
   /**
    * @brief Create a Vague instance with a valid value of the associated type
@@ -147,7 +147,11 @@ public:
    * @return T The value with the associated type in this instance
    */
   T solve(T (*fn)(Maybe<T>, Maybe<Problem>)) const noexcept {
-    return fn(value, problem);
+    if (!hasProblem() && has()) {
+      return value.get();
+    } else {
+      return fn(value, problem);
+    }
   }
 
   /**
