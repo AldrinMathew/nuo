@@ -105,7 +105,7 @@ public:
 
   public:
     iterator(const Vec<T> *_parent, std::size_t _position)
-        : parent(_parent), position(_position) {}
+        : position(_position), parent(_parent) {}
 
     iterator(const iterator &other)
         : position(other.position), parent(other.parent) {}

@@ -5,7 +5,7 @@
 namespace nuo {
 
 JsonValue::JsonValue(JsonValueType _type, void *_data)
-    : type(_type), data(_data) {}
+    : data(_data), type(_type) {}
 
 JsonValue JsonValue::none() { return JsonValue(JsonValueType::none, nullptr); }
 
@@ -20,7 +20,7 @@ void JsonValue::operator=(const std::nullptr_t ptr) {
 }
 
 JsonValue::JsonValue(int val)
-    : type(JsonValueType::integer), data(new int64_t(val)) {}
+    : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int val) {
   clear();
@@ -29,7 +29,7 @@ void JsonValue::operator=(const int val) {
 }
 
 JsonValue::JsonValue(int64_t val)
-    : type(JsonValueType::integer), data(new int64_t(val)) {}
+    : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int64_t val) {
   clear();
@@ -38,7 +38,7 @@ void JsonValue::operator=(const int64_t val) {
 }
 
 JsonValue::JsonValue(double val)
-    : type(JsonValueType::decimal), data(new double(val)) {}
+    : data(new double(val)), type(JsonValueType::decimal) {}
 
 void JsonValue::operator=(const double val) {
   clear();
@@ -47,7 +47,7 @@ void JsonValue::operator=(const double val) {
 }
 
 JsonValue::JsonValue(std::string val)
-    : type(JsonValueType::string), data(new std::string(val)) {}
+    : data(new std::string(val)), type(JsonValueType::string) {}
 
 void JsonValue::operator=(const std::string val) {
   clear();
@@ -56,7 +56,7 @@ void JsonValue::operator=(const std::string val) {
 }
 
 JsonValue::JsonValue(const char *val)
-    : type(JsonValueType::string), data(new std::string(val)) {}
+    : data(new std::string(val)), type(JsonValueType::string) {}
 
 void JsonValue::operator=(const char *val) {
   clear();
@@ -65,7 +65,7 @@ void JsonValue::operator=(const char *val) {
 }
 
 JsonValue::JsonValue(bool val)
-    : type(JsonValueType::boolean), data(new bool(val)) {}
+    : data(new bool(val)), type(JsonValueType::boolean) {}
 
 void JsonValue::operator=(const bool val) {
   clear();
@@ -74,11 +74,7 @@ void JsonValue::operator=(const bool val) {
 }
 
 JsonValue::JsonValue(Json val)
-    : type(JsonValueType::json), data(new Json(val)) {}
-
-// Value::Value(Json &val) : type(JsonValueType::json), data(new Json(val)) {}
-
-// Value::Value(Json &&val) : type(JsonValueType::json), data(new Json(val)) {}
+    : data(new Json(val)), type(JsonValueType::json) {}
 
 void JsonValue::operator=(Json val) {
   clear();
@@ -87,7 +83,7 @@ void JsonValue::operator=(Json val) {
 }
 
 JsonValue::JsonValue(Vec<JsonValue> val)
-    : type(JsonValueType::list), data(new Vec<JsonValue>()) {
+    : data(new Vec<JsonValue>()), type(JsonValueType::list) {
   for (auto elem : val) {
     ((Vec<JsonValue> *)data)->push(elem);
   }
@@ -100,7 +96,7 @@ void JsonValue::operator=(Vec<JsonValue> val) {
 }
 
 JsonValue::JsonValue(std::initializer_list<JsonValue> val)
-    : type(JsonValueType::list), data(new Vec<JsonValue>()) {
+    : data(new Vec<JsonValue>()), type(JsonValueType::list) {
   for (auto &elem : val) {
     ((Vec<JsonValue> *)data)->push(elem);
   }
@@ -132,7 +128,7 @@ void JsonValue::operator=(JsonValue &&other) {
 }
 
 JsonValue::JsonValue(const JsonValue &other)
-    : type(JsonValueType::none), data(nullptr) {
+    : data(nullptr), type(JsonValueType::none) {
   clear();
   type = other.type;
   switch (type) {

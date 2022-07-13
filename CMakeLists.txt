@@ -7,6 +7,18 @@ PROJECT(nuo
 
 SET(CMAKE_CXX_COMPILER /usr/lib/llvm-14/bin/clang++)
 
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+        SET(IS_RELEASE ON)
+else()
+        SET(IS_RELEASE OFF)
+endif()
+
+if(IS_RELEASE)
+        SET(CMAKE_CXX_FLAGS "-std=c++20 -fexceptions")
+else()
+        SET(CMAKE_CXX_FLAGS "-g -std=c++20 -fexceptions -Wall")
+endif()
+
 add_library(${PROJECT_NAME}
         src/exception.cpp
         src/json.cpp)
