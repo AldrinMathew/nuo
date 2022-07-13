@@ -40,6 +40,14 @@ public:
 
   void operator=(const int val);
 
+  JsonValue(unsigned val);
+
+  void operator=(const unsigned val);
+
+  JsonValue(uint64_t val);
+
+  void operator=(const uint64_t val);
+
   JsonValue(int64_t val);
 
   void operator=(const int64_t val);

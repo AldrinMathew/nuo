@@ -1,4 +1,5 @@
 #include "nuo/json.hpp"
+#include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <vector>
@@ -20,7 +21,7 @@ void JsonValue::operator=(const std::nullptr_t ptr) {
   data = nullptr;
 }
 
-JsonValue::JsonValue(int val)
+JsonValue::JsonValue(const int val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int val) {
@@ -29,7 +30,25 @@ void JsonValue::operator=(const int val) {
   data = new int64_t(val);
 }
 
-JsonValue::JsonValue(int64_t val)
+JsonValue::JsonValue(const unsigned val)
+    : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
+
+void JsonValue::operator=(const unsigned val) {
+  clear();
+  type = JsonValueType::integer;
+  data = new int64_t((int64_t)val);
+}
+
+JsonValue::JsonValue(const uint64_t val)
+    : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
+
+void JsonValue::operator=(const uint64_t val) {
+  clear();
+  type = JsonValueType::integer;
+  data = new int64_t((int64_t)val);
+}
+
+JsonValue::JsonValue(const int64_t val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int64_t val) {
@@ -38,7 +57,7 @@ void JsonValue::operator=(const int64_t val) {
   data = new int64_t(val);
 }
 
-JsonValue::JsonValue(double val)
+JsonValue::JsonValue(const double val)
     : data(new double(val)), type(JsonValueType::decimal) {}
 
 void JsonValue::operator=(const double val) {
@@ -47,7 +66,7 @@ void JsonValue::operator=(const double val) {
   data = new double(val);
 }
 
-JsonValue::JsonValue(std::string val)
+JsonValue::JsonValue(const std::string val)
     : data(new std::string(val)), type(JsonValueType::string) {}
 
 void JsonValue::operator=(const std::string val) {
@@ -65,7 +84,7 @@ void JsonValue::operator=(const char *val) {
   data = new std::string(val);
 }
 
-JsonValue::JsonValue(bool val)
+JsonValue::JsonValue(const bool val)
     : data(new bool(val)), type(JsonValueType::boolean) {}
 
 void JsonValue::operator=(const bool val) {
@@ -74,7 +93,7 @@ void JsonValue::operator=(const bool val) {
   data = new bool(val);
 }
 
-JsonValue::JsonValue(Json val)
+JsonValue::JsonValue(const Json val)
     : data(new Json(val)), type(JsonValueType::json) {}
 
 void JsonValue::operator=(Json val) {
@@ -83,27 +102,27 @@ void JsonValue::operator=(Json val) {
   data = new Json(val);
 }
 
-JsonValue::JsonValue(std::vector<JsonValue> val)
+JsonValue::JsonValue(const std::vector<JsonValue> val)
     : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
   for (auto elem : val) {
     ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
-void JsonValue::operator=(std::vector<JsonValue> val) {
+void JsonValue::operator=(const std::vector<JsonValue> val) {
   clear();
   type = JsonValueType::list;
   data = new std::vector<JsonValue>(val);
 }
 
-JsonValue::JsonValue(std::initializer_list<JsonValue> val)
+JsonValue::JsonValue(const std::initializer_list<JsonValue> val)
     : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
   for (auto &elem : val) {
     ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
-void JsonValue::operator=(std::initializer_list<JsonValue> val) {
+void JsonValue::operator=(const std::initializer_list<JsonValue> val) {
   clear();
   type = JsonValueType::list;
   data = new std::vector<JsonValue>();
