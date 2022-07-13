@@ -25,6 +25,8 @@ add_library(${PROJECT_NAME}
 
 add_subdirectory(test)
 
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)

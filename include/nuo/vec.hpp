@@ -36,8 +36,10 @@ private:
   T *allocate_space(unsigned count) { return (T *)malloc(count * sizeof(T)); }
 
   void free_space() {
-    free(start);
-    start = nullptr;
+    if (start) {
+      free(start);
+      start = nullptr;
+    }
   }
 
 public:

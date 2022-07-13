@@ -1,10 +1,10 @@
 #ifndef NUO_JSON_HPP
 #define NUO_JSON_HPP
 
-#include "nuo/vec.hpp"
 #include <cstdint>
 #include <initializer_list>
 #include <string>
+#include <vector>
 
 namespace nuo {
 
@@ -64,17 +64,17 @@ public:
 
   void operator=(Json val);
 
-  JsonValue(Vec<JsonValue> val);
+  JsonValue(std::vector<JsonValue> val);
 
-  void operator=(Vec<JsonValue> val);
+  void operator=(std::vector<JsonValue> val);
 
   JsonValue(std::initializer_list<JsonValue> val);
 
   void operator=(std::initializer_list<JsonValue> val);
 
-  JsonValue(const JsonValue &other);
+  JsonValue(JsonValue const &other);
 
-  void operator=(const JsonValue &other);
+  void operator=(JsonValue const &other);
 
   JsonValue(JsonValue &&other);
 
@@ -119,8 +119,8 @@ public:
 
 class Json {
 private:
-  Vec<std::string> keys;
-  Vec<JsonValue> values;
+  std::vector<std::string> keys;
+  std::vector<JsonValue> values;
 
   mutable unsigned level = 0;
   mutable unsigned spaces = 2;
@@ -130,13 +130,13 @@ private:
 public:
   Json();
 
-  Json(const Json &other);
+  Json(Json const &other);
 
   Json(Json &&other);
 
-  Json &_(std::string key, JsonValue val);
+  Json &_(const std::string key, const JsonValue val);
 
-  void operator=(const Json &other);
+  void operator=(Json const &other);
 
   void operator=(Json &&other);
 
@@ -156,9 +156,9 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, const Json &dt);
 
-  void clear() noexcept(true);
+  void clear() noexcept;
 
-  ~Json() noexcept(true);
+  ~Json() noexcept;
 };
 
 } // namespace nuo

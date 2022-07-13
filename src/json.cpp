@@ -1,6 +1,7 @@
 #include "nuo/json.hpp"
 #include <initializer_list>
 #include <iostream>
+#include <vector>
 
 namespace nuo {
 
@@ -82,32 +83,32 @@ void JsonValue::operator=(Json val) {
   data = new Json(val);
 }
 
-JsonValue::JsonValue(Vec<JsonValue> val)
-    : data(new Vec<JsonValue>()), type(JsonValueType::list) {
+JsonValue::JsonValue(std::vector<JsonValue> val)
+    : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
   for (auto elem : val) {
-    ((Vec<JsonValue> *)data)->push(elem);
+    ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
-void JsonValue::operator=(Vec<JsonValue> val) {
+void JsonValue::operator=(std::vector<JsonValue> val) {
   clear();
   type = JsonValueType::list;
-  data = new Vec<JsonValue>(val);
+  data = new std::vector<JsonValue>(val);
 }
 
 JsonValue::JsonValue(std::initializer_list<JsonValue> val)
-    : data(new Vec<JsonValue>()), type(JsonValueType::list) {
+    : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
   for (auto &elem : val) {
-    ((Vec<JsonValue> *)data)->push(elem);
+    ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
 void JsonValue::operator=(std::initializer_list<JsonValue> val) {
   clear();
   type = JsonValueType::list;
-  data = new Vec<JsonValue>();
+  data = new std::vector<JsonValue>();
   for (auto &elem : val) {
-    ((Vec<JsonValue> *)data)->push(elem);
+    ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
@@ -127,7 +128,7 @@ void JsonValue::operator=(JsonValue &&other) {
   other.type = JsonValueType::none;
 }
 
-JsonValue::JsonValue(const JsonValue &other)
+JsonValue::JsonValue(JsonValue const &other)
     : data(nullptr), type(JsonValueType::none) {
   clear();
   type = other.type;
@@ -153,8 +154,8 @@ JsonValue::JsonValue(const JsonValue &other)
     break;
   }
   case JsonValueType::list: {
-    auto vals = (Vec<JsonValue> *)other.data;
-    data = new Vec<JsonValue>(*vals);
+    auto vals = (std::vector<JsonValue> *)other.data;
+    data = new std::vector<JsonValue>(*vals);
     break;
   }
   case JsonValueType::null:
@@ -164,7 +165,7 @@ JsonValue::JsonValue(const JsonValue &other)
   }
 }
 
-void JsonValue::operator=(const JsonValue &other) {
+void JsonValue::operator=(JsonValue const &other) {
   clear();
   type = other.type;
   switch (type) {
@@ -189,10 +190,10 @@ void JsonValue::operator=(const JsonValue &other) {
     break;
   }
   case JsonValueType::list: {
-    auto vals = (Vec<JsonValue> *)other.data;
-    data = new Vec<JsonValue>();
-    for (std::size_t i = 0; i < vals->length(); i++) {
-      ((Vec<JsonValue> *)data)->push(JsonValue(vals->at(i).get()));
+    auto vals = (std::vector<JsonValue> *)other.data;
+    data = new std::vector<JsonValue>();
+    for (std::size_t i = 0; i < vals->size(); i++) {
+      ((std::vector<JsonValue> *)data)->push_back(JsonValue(vals->at(i)));
     }
     break;
   }
@@ -224,13 +225,13 @@ bool JsonValue::operator==(const JsonValue &other) const {
     return (*((Json *)data)) == (*((Json *)other.data));
   }
   case JsonValueType::list: {
-    auto otherVals = (Vec<JsonValue> *)other.data;
-    auto vals = (Vec<JsonValue> *)data;
-    if (otherVals->length() != vals->length()) {
+    auto otherVals = (std::vector<JsonValue> *)other.data;
+    auto vals = (std::vector<JsonValue> *)data;
+    if (otherVals->size() != vals->size()) {
       return false;
     }
-    for (std::size_t i = 0; i < vals->length(); i++) {
-      if (vals->at(i).get() != otherVals->at(i).get()) {
+    for (std::size_t i = 0; i < vals->size(); i++) {
+      if (vals->at(i) != otherVals->at(i)) {
         return false;
       }
     }
@@ -266,10 +267,10 @@ std::string JsonValue::toString() const {
   }
   case JsonValueType::list: {
     std::string result("[");
-    auto list = (Vec<JsonValue> *)data;
-    for (std::size_t i = 0; i < list->length(); i++) {
-      result += list->at(i).get().toString();
-      if (i != (list->length() - 1)) {
+    auto list = (std::vector<JsonValue> *)data;
+    for (std::size_t i = 0; i < list->size(); i++) {
+      result += list->at(i).toString();
+      if (i != (list->size() - 1)) {
         result += ", ";
       }
     }
@@ -334,7 +335,7 @@ void JsonValue::clear() {
       break;
     }
     case JsonValueType::list: {
-      auto vec = (Vec<JsonValue> *)data;
+      auto vec = (std::vector<JsonValue> *)data;
       for (auto val : (*vec)) {
         val.clear();
       }
@@ -354,7 +355,7 @@ JsonValue::~JsonValue() noexcept { clear(); }
 
 Json::Json() {}
 
-Json::Json(const Json &other)
+Json::Json(Json const &other)
     : keys(other.keys), values(other.values), level(other.level),
       spaces(other.spaces) {}
 
@@ -366,12 +367,16 @@ Json::Json(Json &&other)
 }
 
 Json &Json::_(std::string key, JsonValue val) {
-  keys.push(key);
-  values.push(val);
+  if (has(key)) {
+    (*this)[key] = val;
+  } else {
+    keys.push_back(key);
+    values.push_back(val);
+  }
   return *this;
 }
 
-void Json::operator=(const Json &other) {
+void Json::operator=(Json const &other) {
   keys = other.keys;
   values = other.values;
   level = other.level;
@@ -410,9 +415,9 @@ std::string Json::toString() const {
     return "{}";
   } else {
     std::string result("{\n");
-    for (std::size_t i = 0; i < keys.length(); i++) {
-      if (values.at(i).get().type == JsonValueType::none) {
-        if ((i != (keys.length() - 1)) && (values.at(i + 1).get())) {
+    for (std::size_t i = 0; i < keys.size(); i++) {
+      if (values.at(i).type == JsonValueType::none) {
+        if ((i != (keys.size() - 1)) && (values.at(i + 1))) {
           result += ",\n";
         }
         continue;
@@ -422,12 +427,11 @@ std::string Json::toString() const {
           result += " ";
         }
       }
-      if (values.at(i).get().type == JsonValueType::json) {
-        ((Json *)(values.at(i).get().data))->setLevel(level + 1);
+      if (values.at(i).type == JsonValueType::json) {
+        ((Json *)(values.at(i).data))->setLevel(level + 1);
       }
-      result += ('"' + keys.at(i).get() + '"' + " : " +
-                 values.at(i).get().toString());
-      if ((i != (keys.length() - 1)) && (values.at(i + 1).get())) {
+      result += ('"' + keys.at(i) + '"' + " : " + values.at(i).toString());
+      if ((i != (keys.size() - 1)) && (values.at(i + 1))) {
         result += ",\n";
       }
     }
@@ -443,8 +447,8 @@ std::string Json::toString() const {
 }
 
 bool Json::has(const std::string key) const {
-  for (std::size_t i = 0; i < keys.length(); i++) {
-    if (keys.at(i).get() == key) {
+  for (std::size_t i = 0; i < keys.size(); i++) {
+    if (keys.at(i) == key) {
       return true;
     }
   }
@@ -452,27 +456,27 @@ bool Json::has(const std::string key) const {
 }
 
 JsonValue &Json::operator[](const std::string key) {
-  for (std::size_t i = 0; i < keys.length(); i++) {
-    if (keys.at(i).get() == key) {
+  for (std::size_t i = 0; i < keys.size(); i++) {
+    if (keys.at(i) == key) {
       return values[i];
     }
   }
-  keys.push(key);
+  keys.push_back(key);
   auto none = JsonValue::none();
-  values.push(none);
-  return values[values.length() - 1];
+  values.push_back(none);
+  return values[values.size() - 1];
 }
 
 bool Json::operator==(const Json &other) const {
   if (size() != other.size()) {
     return false;
   }
-  for (std::size_t i = 0; i < keys.length(); i++) {
-    if (!values.at(i).get().isNone()) {
-      if (keys.at(i).get() != other.keys.at(i).get()) {
+  for (std::size_t i = 0; i < keys.size(); i++) {
+    if (!values.at(i).isNone()) {
+      if (keys.at(i) != other.keys.at(i)) {
         return false;
       }
-      if (values.at(i).get() != other.values.at(i).get()) {
+      if (values.at(i) != other.values.at(i)) {
         return false;
       }
     }
@@ -484,8 +488,8 @@ bool Json::operator!=(const Json &other) const { return !((*this) == other); }
 
 std::size_t Json::size() const {
   std::size_t result = 0;
-  for (std::size_t i = 0; i < values.length(); i++) {
-    if (values.at(i).get().type != JsonValueType::none) {
+  for (std::size_t i = 0; i < values.size(); i++) {
+    if (values.at(i).type != JsonValueType::none) {
       result++;
     }
   }

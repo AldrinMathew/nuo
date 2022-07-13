@@ -16,7 +16,8 @@
 #define GROUP(name)                                                            \
   std::cout << "\e[0m"                                                         \
             << "Test Group :: "                                                \
-            << "\e[1;33m" << name << "\n";
+            << "\e[1;33m" << name << "\e[0m"                                   \
+            << "\n";
 
 int main() {
   using nuo::Json;
@@ -54,10 +55,13 @@ int main() {
   GROUP("Json")
   auto json = Json();
   json["hello"] = "hi";
+  json["some"] = "someother";
+  json["hsdfddfdf"] = "423434";
   ASSERT(json["hello"] == "hi")
   ASSERT(json["hello"] != "some")
-  json._("second", "other");
-  ASSERT(json == (Json()._("hello", "hi")._("second", "other")))
+  json._("second", "other")._("third", "dru");
+  ASSERT(json["second"] == "other")
+  ASSERT(json["third"] == "dru")
 
   /* Tests complete */
   return 0;
