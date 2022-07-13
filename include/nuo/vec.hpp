@@ -2,6 +2,7 @@
 #define NUO_VEC_HPP
 
 #include "nuo/maybe.hpp"
+#include <cstddef>
 #include <initializer_list>
 
 namespace nuo {
@@ -61,7 +62,7 @@ public:
    */
   Vec(const Vec<T> &other) : start(nullptr), len(0), buff_len(0) {
     start = allocate_space(other.len);
-    for (unsigned i = 0; i < len; i++) {
+    for (unsigned i = 0; i < other.len; i++) {
       start[i] = other.at(i).get();
     }
     len = other.len;
@@ -91,11 +92,92 @@ public:
     len = list.size();
     buff_len = len;
     unsigned i = 0;
-    for (auto element = list.begin(); element != list.end(); element++) {
-      start[i] = *element;
+    for (const auto &elem : list) {
+      start[i] = elem;
       i++;
     }
   }
+
+  class iterator {
+  private:
+    std::size_t position;
+    const Vec<T> *parent;
+
+  public:
+    iterator(const Vec<T> *_parent, std::size_t _position)
+        : parent(_parent), position(_position) {}
+
+    iterator(const iterator &other)
+        : position(other.position), parent(other.parent) {}
+
+    iterator(iterator &&other)
+        : position(other.position), parent(other.parent) {}
+
+    void operator=(const iterator &other) {
+      position = other.position;
+      parent = other.parent;
+    }
+
+    void operator=(iterator &&other) {
+      position = other.position;
+      parent = other.parent;
+      other.position = 0;
+      other.parent = nullptr;
+    }
+
+    ~iterator() noexcept {
+      position = 0;
+      parent = nullptr;
+    }
+
+    iterator &operator--() noexcept {
+      if (position > 0) {
+        position--;
+      }
+      return *this;
+    }
+
+    iterator &operator--(int) noexcept {
+      iterator tmp = *this;
+      if (position > 0) {
+        position--;
+      }
+      return tmp;
+    }
+
+    iterator &operator++() noexcept {
+      if (parent) {
+        if (position < parent->len) {
+          position++;
+        }
+      }
+      return *this;
+    }
+
+    iterator &operator++(int) noexcept {
+      iterator tmp = *this;
+      if (parent) {
+        if (position < parent->len) {
+          position++;
+        }
+      }
+      return tmp;
+    }
+
+    bool operator==(iterator other) const {
+      return ((position == other.position) && (parent == other.parent));
+    }
+
+    bool operator!=(iterator other) const {
+      return (position != other.position);
+    }
+
+    T operator*() const noexcept { return parent->at(position).get(); }
+  };
+
+  iterator begin() const { return iterator(this, 0); }
+
+  iterator end() const { return iterator(this, len); }
 
   /**
    * @brief Push a new element after the last element. This will resize the
@@ -125,7 +207,7 @@ public:
   }
 
   void pushAll(std::initializer_list<T> elements) noexcept {
-    for (auto elem : elements) {
+    for (const auto &elem : elements) {
       push(elem);
     }
   }
@@ -138,23 +220,28 @@ public:
 
   void pushAll(Vec<T> &&other) noexcept {
     for (unsigned i = 0; i < other.len; i++) {
-      push(other.at(i).get());
+      push(std::move(other[i]));
     }
+    other.clear();
     other.start = nullptr;
-    other.len = nullptr;
-    other.buff_len = nullptr;
+    other.len = 0;
+    other.buff_len = 0;
   }
 
-  Vec<T> operator+(const Vec<T> other) const noexcept {
+  Vec<T> operator+(const Vec<T> &other) const noexcept {
     auto result = Vec<T>(*this);
-    result.pushAll(other);
+    if (other.size() != 0) {
+      result.pushAll(other);
+    }
     return result;
   }
 
-  Vec<T> operator+(const std::initializer_list<T> elements) const noexcept {
+  Vec<T> operator+(const std::initializer_list<T> &elements) const noexcept {
     auto result = Vec<T>(*this);
-    for (auto elem : elements) {
-      result.push(elem);
+    if (elements.size() != 0) {
+      for (const auto &elem : elements) {
+        result.push(elem);
+      }
     }
     return result;
   }
@@ -164,19 +251,17 @@ public:
    * the last element.
    *
    */
-  void pop() noexcept {
+  void pop() noexcept(true) {
     if (len > 0) {
       start[len].~T();
       --len;
     }
   }
 
-  /**
-   * @brief The number of elements in the vector
-   *
-   * @return unsigned
-   */
-  unsigned length() const noexcept { return len; }
+  // The number of elements in the vector
+  unsigned length() const noexcept(true) { return len; }
+
+  unsigned size() const noexcept(true) { return len; }
 
   /**
    * @brief Get the element at the provided index. This does not throw errors if
@@ -186,11 +271,11 @@ public:
    * @param index Index to find the element at
    * @return Maybe<T>
    */
-  Maybe<T> at(unsigned index) const noexcept {
+  Maybe<T> at(unsigned index) const noexcept(true) {
     if (index < len) {
       return Maybe<T>(start[index]);
     } else {
-      return Null();
+      return Maybe<T>();
     }
   }
 
@@ -301,9 +386,10 @@ public:
    *
    */
   void operator=(const Vec<T> &other) noexcept {
+    free_space();
     start = allocate_space(other.len);
     for (unsigned i = 0; i < len; i++) {
-      start[i] = other[i];
+      start[i] = other.at(i).get();
     }
     len = other.len;
     buff_len = len;
