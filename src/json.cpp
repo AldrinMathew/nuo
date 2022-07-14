@@ -15,12 +15,6 @@ JsonValue::operator bool() const { return (type != JsonValueType::none); }
 
 JsonValue::JsonValue() : data(nullptr), type(JsonValueType::null) {}
 
-void JsonValue::operator=(const std::nullptr_t ptr) {
-  clear();
-  type = JsonValueType::null;
-  data = nullptr;
-}
-
 JsonValue::JsonValue(const int val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
 
@@ -34,6 +28,15 @@ JsonValue::JsonValue(const unsigned val)
     : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const unsigned val) {
+  clear();
+  type = JsonValueType::integer;
+  data = new int64_t((int64_t)val);
+}
+
+JsonValue::JsonValue(const unsigned long long val)
+    : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
+
+void JsonValue::operator=(const unsigned long long val) {
   clear();
   type = JsonValueType::integer;
   data = new int64_t((int64_t)val);
@@ -310,19 +313,33 @@ JsonValueType JsonValue::getType() const { return type; }
 
 bool JsonValue::isBool() const { return (type == JsonValueType::boolean); }
 
+bool JsonValue::asBool() const { return *((bool *)data); }
+
 bool JsonValue::isDouble() const { return (type == JsonValueType::decimal); }
+
+double JsonValue::asDouble() const { return *((double *)data); }
 
 bool JsonValue::isInt() const { return (type == JsonValueType::integer); }
 
+int64_t JsonValue::asInt() const { return *((int64_t *)data); }
+
 bool JsonValue::isJson() const { return (type == JsonValueType::json); }
 
+nuo::Json JsonValue::asJson() const { return *((Json *)data); }
+
 bool JsonValue::isList() const { return (type == JsonValueType::list); }
+
+std::vector<JsonValue> JsonValue::asList() const {
+  return *((std::vector<JsonValue> *)data);
+}
 
 bool JsonValue::isNull() const { return (type == JsonValueType::null); }
 
 bool JsonValue::isNone() const { return (type == JsonValueType::none); }
 
 bool JsonValue::isString() const { return (type == JsonValueType::string); }
+
+std::string JsonValue::asString() const { return *((std::string *)data); }
 
 std::ostream &operator<<(std::ostream &stream, const JsonValue &val) {
   std::operator<<(stream, val.toString());

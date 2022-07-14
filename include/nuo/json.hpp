@@ -34,8 +34,6 @@ protected:
 public:
   JsonValue();
 
-  void operator=(const std::nullptr_t ptr);
-
   JsonValue(int val);
 
   void operator=(const int val);
@@ -43,6 +41,10 @@ public:
   JsonValue(unsigned val);
 
   void operator=(const unsigned val);
+
+  JsonValue(const unsigned long long val);
+
+  void operator=(const unsigned long long val);
 
   JsonValue(uint64_t val);
 
@@ -100,23 +102,33 @@ public:
 
   JsonValueType getType() const;
 
-  template <typename T> T cast() { return *((T *)data); }
-
   bool isInt() const;
 
+  int64_t asInt() const;
+
   bool isDouble() const;
+
+  double asDouble() const;
 
   bool isNull() const;
 
   bool isString() const;
 
+  std::string asString() const;
+
   bool isBool() const;
 
+  bool asBool() const;
+
   bool isJson() const;
+
+  Json asJson() const;
 
   bool isNone() const;
 
   bool isList() const;
+
+  std::vector<JsonValue> asList() const;
 
   friend std::ostream &operator<<(std::ostream &os, const JsonValue &val);
 
