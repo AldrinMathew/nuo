@@ -91,9 +91,9 @@ void JsonParser::lex(std::string val) {
         isFloat = !onlyZeroes;
       }
       if (isFloat) {
-        toks.push_back(Token(TokenType::integer, num));
-      } else {
         toks.push_back(Token(TokenType::floating, num + '.' + decimal));
+      } else {
+        toks.push_back(Token(TokenType::integer, num));
       }
     } else if (alpha.find(val.at(i)) != std::string::npos) {
       std::string idt(val.substr(i, 1));
