@@ -256,7 +256,8 @@ JsonValue JsonParser::parseValue(std::size_t from, std::size_t to) const {
         std::vector<JsonValue> vals;
         if (hasPrimaryCommas(i, bClose)) {
           auto sepPos = getPrimaryCommas(i, bClose);
-          vals.push_back(parseValue(i, sepPos.front()));
+          auto elem = parseValue(i, sepPos.front());
+          vals.push_back(elem);
           for (std::size_t j = 0; j < (sepPos.size() - 1); j++) {
             auto res = parseValue(sepPos.at(j), sepPos.at(j + 1));
             vals.push_back(res);
@@ -351,8 +352,8 @@ JsonParser::parsePairs(std::size_t from, std::size_t to) const {
             auto bClose = bCloseRes.value();
             if (isNext(TokenType::comma, bClose) ||
                 isNext(TokenType::curlyBraceClose, bClose)) {
-              result.push_back(
-                  std::pair(tok.value, parseValue(i + 1, bClose + 1)));
+              auto pairVal = parseValue(i + 1, bClose + 1);
+              result.push_back(std::pair(tok.value, pairVal));
               i = bClose;
               break;
             } else {

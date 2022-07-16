@@ -64,7 +64,8 @@ int main() {
   ASSERT(json["second"] == "other")
   ASSERT(json["third"] == "dru")
   try {
-    auto jsn = Json("{\"hello\": [435345], \"hello3\": {}}");
+    auto jsn = Json(
+        R"({"hello": ["435345", "34435", "234234", {}], "hello3": {}, "hello2":{"some":"dfg"}})");
     std::cout << jsn << std::endl;
   } catch (nuo::Exception &ex) {
     std::cout << ex.what() << "\n";
