@@ -271,6 +271,219 @@ bool JsonValue::operator!=(const JsonValue &other) const {
   return !(*this == other);
 }
 
+bool JsonValue::operator==(const int val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) == ((int64_t)val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const int val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) != ((int64_t)val));
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const unsigned val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) == ((int64_t)val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const unsigned val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) != ((int64_t)val));
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const unsigned long long val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) == ((int64_t)val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const unsigned long long val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) != ((int64_t)val));
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const uint64_t val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) == ((int64_t)val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const uint64_t val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) != ((int64_t)val));
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const int64_t val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) == val);
+  }
+  return false;
+}
+bool JsonValue::operator!=(const int64_t val) const {
+  if (type == JsonValueType::integer) {
+    return ((*((int64_t *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const float val) const {
+  if (type == JsonValueType::decimal) {
+    return ((*((double *)data)) == ((double)val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const float val) const {
+  if (type == JsonValueType::decimal) {
+    return ((*((double *)data)) != ((double)val));
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const double val) const {
+  if (type == JsonValueType::decimal) {
+    return ((*((double *)data)) == (val));
+  }
+  return false;
+}
+bool JsonValue::operator!=(const double val) const {
+  if (type == JsonValueType::decimal) {
+    return ((*((double *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const char *val) const {
+  if (type == JsonValueType::string) {
+    return ((*((std::string *)data)) == val);
+  }
+  return false;
+}
+bool JsonValue::operator!=(const char *val) const {
+  if (type == JsonValueType::string) {
+    return ((*((std::string *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const std::string val) const {
+  if (type == JsonValueType::string) {
+    return ((*((std::string *)data)) == val);
+  }
+  return false;
+}
+bool JsonValue::operator!=(const std::string val) const {
+  if (type == JsonValueType::string) {
+    return ((*((std::string *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const bool val) const {
+  if (type == JsonValueType::boolean) {
+    return ((*((bool *)data)) == val);
+  }
+  return false;
+}
+bool JsonValue::operator!=(const bool val) const {
+  if (type == JsonValueType::boolean) {
+    return ((*((bool *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const Json &val) const {
+  if (type == JsonValueType::json) {
+    return ((*((Json *)data)) == val);
+  }
+  return false;
+}
+bool JsonValue::operator!=(const Json &val) const {
+  if (type == JsonValueType::json) {
+    return ((*((Json *)data)) != val);
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const std::vector<JsonValue> &val) const {
+  if (type == JsonValueType::list) {
+    auto thisList = (std::vector<JsonValue> *)data;
+    if (thisList->size() == val.size()) {
+      for (std::size_t i = 0; i < val.size(); i++) {
+        if (thisList->at(i) != val.at(i)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+bool JsonValue::operator!=(const std::vector<JsonValue> &val) const {
+  if (type == JsonValueType::list) {
+    auto thisList = (std::vector<JsonValue> *)data;
+    if (thisList->size() == val.size()) {
+      for (std::size_t i = 0; i < val.size(); i++) {
+        if (thisList->at(i) != val.at(i)) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
+  return true;
+}
+
+bool JsonValue::operator==(const std::initializer_list<JsonValue> &val) const {
+  if (type == JsonValueType::list) {
+    auto thisList = (std::vector<JsonValue> *)data;
+    if (thisList->size() == val.size()) {
+      std::size_t i = 0;
+      for (const auto &elem : val) {
+        if (thisList->at(i) != elem) {
+          return false;
+        }
+        i++;
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+bool JsonValue::operator!=(const std::initializer_list<JsonValue> &val) const {
+  if (type == JsonValueType::list) {
+    auto thisList = (std::vector<JsonValue> *)data;
+    if (thisList->size() == val.size()) {
+      std::size_t i = 0;
+      for (const auto &elem : val) {
+        if (thisList->at(i) != elem) {
+          return true;
+        }
+        i++;
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
+  return true;
+}
+
 std::string JsonValue::toString() const {
   switch (type) {
   case JsonValueType::string: {

@@ -25,78 +25,115 @@ class JsonValue {
 protected:
   friend class Json;
 
+  // The heap allocated data of this JsonValue
   void *data;
 
+  // Type of the value, used to allocate and deallocate, and also to identify
+  // data type
   JsonValueType type;
 
+  //
   JsonValue(JsonValueType type, void *data);
 
 public:
   JsonValue();
 
+  // int
   JsonValue(int val);
-
   void operator=(const int val);
 
+  // unsigned
   JsonValue(unsigned val);
-
   void operator=(const unsigned val);
 
+  // unsigned long long
   JsonValue(const unsigned long long val);
-
   void operator=(const unsigned long long val);
 
+  // uint64_t
   JsonValue(uint64_t val);
-
   void operator=(const uint64_t val);
 
+  // int64_t
   JsonValue(int64_t val);
-
   void operator=(const int64_t val);
 
+  // double
   JsonValue(double val);
-
   void operator=(const double val);
 
+  // std::string
   JsonValue(std::string val);
-
   void operator=(const std::string val);
 
+  // C string
   JsonValue(const char *val);
-
   void operator=(const char *val);
 
+  // bool
   JsonValue(bool val);
-
   void operator=(const bool val);
 
+  // Json
   JsonValue(Json val);
-
   void operator=(Json val);
 
+  // Vector of JsonValue
   JsonValue(std::vector<JsonValue> val);
-
   void operator=(std::vector<JsonValue> val);
 
+  // initializer_list of JsonValue
   JsonValue(std::initializer_list<JsonValue> val);
-
   void operator=(std::initializer_list<JsonValue> val);
 
-  JsonValue(JsonValue const &other);
+  // Equality & Inequality operators
+  //
+  // These are provided so that there is no implicit construction of JsonValue
+  // instances during comparisons
 
-  void operator=(JsonValue const &other);
-
-  JsonValue(JsonValue &&other);
-
-  void operator=(JsonValue &&other);
-
-  static JsonValue none();
-
-  explicit operator bool() const;
+  bool operator==(const int val) const;
+  bool operator!=(const int val) const;
+  bool operator==(const unsigned val) const;
+  bool operator!=(const unsigned val) const;
+  bool operator==(const unsigned long long val) const;
+  bool operator!=(const unsigned long long val) const;
+  bool operator==(const uint64_t val) const;
+  bool operator!=(const uint64_t val) const;
+  bool operator==(const int64_t val) const;
+  bool operator!=(const int64_t val) const;
+  bool operator==(const float val) const;
+  bool operator!=(const float val) const;
+  bool operator==(const double val) const;
+  bool operator!=(const double val) const;
+  bool operator==(const char *val) const;
+  bool operator!=(const char *val) const;
+  bool operator==(const std::string val) const;
+  bool operator!=(const std::string val) const;
+  bool operator==(const bool val) const;
+  bool operator!=(const bool val) const;
+  bool operator==(const Json &val) const;
+  bool operator!=(const Json &val) const;
+  bool operator==(const std::vector<JsonValue> &val) const;
+  bool operator!=(const std::vector<JsonValue> &val) const;
+  bool operator==(const std::initializer_list<JsonValue> &val) const;
+  bool operator!=(const std::initializer_list<JsonValue> &val) const;
 
   bool operator==(const JsonValue &other) const;
-
   bool operator!=(const JsonValue &other) const;
+
+  // Copy semantics
+  JsonValue(JsonValue const &other);
+  void operator=(JsonValue const &other);
+
+  // Move semantics
+  JsonValue(JsonValue &&other);
+  void operator=(JsonValue &&other);
+
+  // A none value. This will have no representation in the resultant json
+  static JsonValue none();
+
+  // Check whether this value has a valid json value in it
+  explicit operator bool() const;
 
   std::string toString() const;
 
