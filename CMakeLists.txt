@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16.3)
 
 PROJECT(nuo
-        VERSION "0.2.0"
+        VERSION "0.3.0"
         DESCRIPTION "Nuo Library for modern C++"
         HOMEPAGE_URL "https://github.com/aldrinmathew/nuo")
 
@@ -21,7 +21,8 @@ endif()
 
 add_library(${PROJECT_NAME}
         src/exception.cpp
-        src/json.cpp)
+        src/json.cpp
+        src/json_parser.cpp)
 
 add_subdirectory(test)
 

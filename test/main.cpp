@@ -1,3 +1,4 @@
+#include "nuo/exception.hpp"
 #include "nuo/json.hpp"
 #include "nuo/maybe.hpp"
 #include "nuo/vague.hpp"
@@ -56,12 +57,18 @@ int main() {
   auto json = Json();
   json["hello"] = "hi";
   json["some"] = "someother";
-  json["hsdfddfdf"] = "423434";
+  // json["hsdfddfdf"] = "423434";
   ASSERT(json["hello"] == "hi")
   ASSERT(json["hello"] != "some")
   json._("second", "other")._("third", "dru");
   ASSERT(json["second"] == "other")
   ASSERT(json["third"] == "dru")
+  try {
+    auto jsn = Json("{\"hello\": [\"one\",\"two\",\"three\"], \"hello3\": {}}");
+    std::cout << jsn << std::endl;
+  } catch (nuo::Exception &ex) {
+    std::cout << ex.what() << "\n";
+  }
 
   /* Tests complete */
   return 0;

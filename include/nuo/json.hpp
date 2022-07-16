@@ -150,6 +150,8 @@ private:
 public:
   Json();
 
+  Json(std::string val);
+
   Json(Json const &other);
 
   Json(Json &&other);

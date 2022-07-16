@@ -1,4 +1,5 @@
 #include "nuo/json.hpp"
+#include "nuo/json_parser.hpp"
 #include <cstdint>
 #include <initializer_list>
 #include <iostream>
@@ -215,7 +216,7 @@ void JsonValue::operator=(JsonValue const &other) {
     auto vals = (std::vector<JsonValue> *)other.data;
     data = new std::vector<JsonValue>();
     for (std::size_t i = 0; i < vals->size(); i++) {
-      ((std::vector<JsonValue> *)data)->push_back(JsonValue(vals->at(i)));
+      ((std::vector<JsonValue> *)data)->push_back(vals->at(i));
     }
     break;
   }
@@ -390,6 +391,16 @@ void JsonValue::clear() {
 JsonValue::~JsonValue() noexcept { clear(); }
 
 Json::Json() {}
+
+Json::Json(std::string val) {
+  auto parser = JsonParser();
+  parser.lex(val);
+  auto res = parser.parse();
+  keys = std::move(res.keys);
+  values = std::move(res.values);
+  setLevel(res.level);
+  setSpaces(res.spaces);
+}
 
 Json::Json(Json const &other)
     : keys(other.keys), values(other.values), level(other.level),
