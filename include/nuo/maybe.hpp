@@ -24,7 +24,7 @@ public:
   Maybe() : val(nullptr) {}
 
   // Copy constructor for Maybe
-  Maybe(const Maybe<T> &other) {
+  Maybe(Maybe<T> const &other) {
     if (val) {
       if (other.has()) {
         *((T *)val) = *((T *)other.val);
@@ -48,7 +48,7 @@ public:
   }
 
   // brief Copy assignment operator
-  void operator=(const Maybe<T> &other) {
+  Maybe<T> &operator=(Maybe<T> const &other) {
     if (val) {
       if (other.has()) {
         *((T *)val) = *((T *)other.val);
@@ -59,23 +59,33 @@ public:
     } else {
       val = new T(*((T *)other.val));
     }
+    return *this;
   }
 
   // Move assignment operator
-  void operator=(Maybe<T> &&other) {
+  Maybe<T> &operator=(Maybe<T> &&other) {
     if (val) {
       delete ((T *)val);
     }
     val = other.val;
     other.val = nullptr;
+    return *this;
   }
 
   // Assign a value of the associated type
-  void operator=(const T other_val) {
+  void operator=(T const &other_val) {
     if (val) {
       *((T *)val) = other_val;
     } else {
       val = new T(other_val);
+    }
+  }
+
+  void operator=(T &&other_val) {
+    if (val) {
+      *((T *)val) = std::move(other_val);
+    } else {
+      val = new T(std::move(other_val));
     }
   }
 

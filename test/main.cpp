@@ -10,23 +10,27 @@
 #define str_val(a) #a
 
 #define ASSERT(x)                                                              \
-  std::cout << "   " << ((x) ? "\e[0;32m" : "\e[1;31m")                        \
+  std::cout << "    " << ((x) ? "\e[0;32m" : "\e[1;31m")                       \
             << ((x) ? "success" : "failure") << "   "                          \
             << "\e[0m" << STRINGIFY(x) << "\n";
 
 #define GROUP(name)                                                            \
-  std::cout << "\e[0m"                                                         \
-            << "Test Group :: "                                                \
-            << "\e[1;33m" << name << "\e[0m"                                   \
+  group = name;                                                                \
+  std::cout << "\n\e[0m\e[1;43m Group :: " << name << " \e[0m"                 \
             << "\n";
 
-auto sample() { return nuo::Json(); }
+#define SUBGROUP(name)                                                         \
+  std::cout << "\e[1;33m  " << group << "\e[0m -> "                            \
+            << "\e[1;34m" << name << "\e[0m"                                   \
+            << "\n";
 
 int main() {
   using nuo::Json;
   using nuo::Maybe;
   using nuo::Vague;
   using nuo::Vec;
+
+  std::string group;
 
   GROUP("Vec")
   auto vec1 = Vec<int>({50, 60});
@@ -41,6 +45,20 @@ int main() {
   ASSERT(vec1.length() == 8)
   vec1 = (vec1 + vec2);
   ASSERT(vec1.length() == 10)
+  SUBGROUP("Moving")
+  auto getTempVec = []() { return Vec<int>({234, 324}); };
+  vec1 = getTempVec();
+  ASSERT(vec1[0] == 234)
+  ASSERT(vec1[1] == 324)
+  SUBGROUP("Copying")
+  vec1 = vec2;
+  ASSERT(vec1[0] == 100)
+  ASSERT(vec1[1] == 300)
+  SUBGROUP("Class Element")
+  auto vec3 = Vec<Json>();
+  vec3.push(R"({"hello" : "world"})"_json);
+  ASSERT(vec3.size() == 1)
+  ASSERT(vec3[0] == Json()._("hello", "world"))
 
   GROUP("Maybe")
   auto opt1 = Maybe<int>();
@@ -49,6 +67,15 @@ int main() {
   opt1 = 5;
   ASSERT(opt1.has() == true)
   ASSERT(opt1.getOr(10) == 5)
+  auto opt2 = Maybe<int>();
+  SUBGROUP("Moving")
+  auto getTempMaybe = []() { return Maybe<int>(5676); };
+  opt1 = getTempMaybe();
+  ASSERT(opt1.has())
+  ASSERT(opt1.get() == 5676)
+  SUBGROUP("Copying")
+  opt1 = opt2;
+  ASSERT(opt1.has() == false)
 
   GROUP("Vague")
   auto vge1 = Vague<int>(34);
@@ -65,6 +92,7 @@ int main() {
   ASSERT(json["second"] == "other")
   ASSERT(json["third"] == "dru")
   try { // Since we are using Json parsing, there can be exceptions
+    SUBGROUP("Parsing & Literal Operator")
     auto jsn = R"({
             "hello": ["435345\"", "34435", "234234", {}],
             "hello3": {},
@@ -77,6 +105,10 @@ int main() {
     ASSERT(jsn["hello2"] == Json()._("some", "dfg"))
     auto another = R"({"dfd": "some"})"_json;
     ASSERT(another["dfd"] == "some")
+    SUBGROUP("Copying")
+    jsn = another;
+    ASSERT(jsn.size() == 1)
+    ASSERT(jsn["dfd"] == "some")
   } catch (nuo::Exception &ex) {
     std::cout << ex.what() << "\n";
   }

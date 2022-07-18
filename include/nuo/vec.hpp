@@ -62,7 +62,7 @@ public:
    *
    * @param other The reference to the other Vec instance
    */
-  Vec(const Vec<T> &other) : start(nullptr), len(0), buff_len(0) {
+  Vec(Vec<T> const &other) : start(nullptr), len(0), buff_len(0) {
     start = allocate_space(other.len);
     for (unsigned i = 0; i < other.len; i++) {
       start[i] = other.at(i).get();
