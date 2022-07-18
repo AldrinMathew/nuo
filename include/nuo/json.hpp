@@ -139,7 +139,10 @@ public:
   // Check whether this value has a valid json value in it
   explicit operator bool() const;
 
-  std::string toString() const;
+  // If `isJson` is true, then the json format of the string value is returned.
+  // This means that escape characters will be in json format and not actual
+  // escape characters
+  std::string toString(const bool isJson) const;
 
   JsonValueType getType() const;
 
@@ -188,6 +191,8 @@ private:
 
   void setLevel(unsigned lev) const;
 
+  friend class JsonValue;
+
 public:
   Json();
 
@@ -225,5 +230,8 @@ public:
 };
 
 } // namespace nuo
+
+// Literal operator for automatically parsing Json from a C string
+nuo::Json operator"" _json(const char *str, std::size_t len);
 
 #endif

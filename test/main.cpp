@@ -65,17 +65,18 @@ int main() {
   ASSERT(json["second"] == "other")
   ASSERT(json["third"] == "dru")
   try { // Since we are using Json parsing, there can be exceptions
-    auto jsn = Json(
-        R"({
-            "hello": ["435345", "34435", "234234", {}],
+    auto jsn = R"({
+            "hello": ["435345\"", "34435", "234234", {}],
             "hello3": {},
             "hello2":{"some":"dfg"}
-          })");
+          })"_json;
+
     ASSERT(jsn["hello"] ==
-           std::vector<nuo::JsonValue>({"435345", "34435", "234234", Json()}))
+           std::vector<nuo::JsonValue>({"435345\"", "34435", "234234", Json()}))
     ASSERT(jsn["hello3"] == Json())
     ASSERT(jsn["hello2"] == Json()._("some", "dfg"))
-    std::cout << jsn << std::endl;
+    auto another = R"({"dfd": "some"})"_json;
+    ASSERT(another["dfd"] == "some")
   } catch (nuo::Exception &ex) {
     std::cout << ex.what() << "\n";
   }
