@@ -39,7 +39,7 @@ private:
 
   std::vector<Token> toks;
 
-protected:
+private:
   friend class Json;
 
   void lex(std::string val);

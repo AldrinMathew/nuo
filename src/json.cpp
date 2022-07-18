@@ -20,103 +20,168 @@ JsonValue::JsonValue(const int val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int val) {
-  clear();
-  type = JsonValueType::integer;
-  data = new int64_t(val);
+  if (isInt()) {
+    *((int64_t *)data) = (int64_t)val;
+  } else {
+    clear();
+    type = JsonValueType::integer;
+    data = new int64_t(val);
+  }
 }
 
 JsonValue::JsonValue(const unsigned val)
     : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const unsigned val) {
-  clear();
-  type = JsonValueType::integer;
-  data = new int64_t((int64_t)val);
+  if (isInt()) {
+    *((int64_t *)data) = (int64_t)val;
+  } else {
+    clear();
+    type = JsonValueType::integer;
+    data = new int64_t((int64_t)val);
+  }
 }
 
 JsonValue::JsonValue(const unsigned long long val)
     : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const unsigned long long val) {
-  clear();
-  type = JsonValueType::integer;
-  data = new int64_t((int64_t)val);
+  if (isInt()) {
+    *((int64_t *)data) = (int64_t)val;
+  } else {
+    clear();
+    type = JsonValueType::integer;
+    data = new int64_t((int64_t)val);
+  }
 }
 
 JsonValue::JsonValue(const uint64_t val)
     : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const uint64_t val) {
-  clear();
-  type = JsonValueType::integer;
-  data = new int64_t((int64_t)val);
+  if (isInt()) {
+    *((int64_t *)data) = (int64_t)val;
+  } else {
+    clear();
+    type = JsonValueType::integer;
+    data = new int64_t((int64_t)val);
+  }
 }
 
 JsonValue::JsonValue(const int64_t val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
 
 void JsonValue::operator=(const int64_t val) {
-  clear();
-  type = JsonValueType::integer;
-  data = new int64_t(val);
+  if (isInt()) {
+    *((int64_t *)data) = val;
+  } else {
+    clear();
+    type = JsonValueType::integer;
+    data = new int64_t(val);
+  }
 }
 
 JsonValue::JsonValue(const double val)
     : data(new double(val)), type(JsonValueType::decimal) {}
 
 void JsonValue::operator=(const double val) {
-  clear();
-  type = JsonValueType::decimal;
-  data = new double(val);
+  if (isDouble()) {
+    *((double *)data) = val;
+  } else {
+    clear();
+    type = JsonValueType::decimal;
+    data = new double(val);
+  }
 }
 
 JsonValue::JsonValue(const std::string val)
     : data(new std::string(val)), type(JsonValueType::string) {}
 
 void JsonValue::operator=(const std::string val) {
-  clear();
-  type = JsonValueType::string;
-  data = new std::string(val);
+  if (isString()) {
+    *((std::string *)data) = val;
+  } else {
+    clear();
+    type = JsonValueType::string;
+    data = new std::string(val);
+  }
 }
 
 JsonValue::JsonValue(const char *val)
     : data(new std::string(val)), type(JsonValueType::string) {}
 
 void JsonValue::operator=(const char *val) {
-  clear();
-  type = JsonValueType::string;
-  data = new std::string(val);
+  if (isString()) {
+    *((std::string *)data) = std::string(val);
+  } else {
+    clear();
+    type = JsonValueType::string;
+    data = new std::string(val);
+  }
 }
 
 JsonValue::JsonValue(const bool val)
     : data(new bool(val)), type(JsonValueType::boolean) {}
 
 void JsonValue::operator=(const bool val) {
-  clear();
-  type = JsonValueType::boolean;
-  data = new bool(val);
-}
-
-JsonValue::JsonValue(const Json val)
-    : data(new Json(val)), type(JsonValueType::json) {}
-
-void JsonValue::operator=(Json val) {
-  clear();
-  type = JsonValueType::json;
-  data = new Json(val);
-}
-
-JsonValue::JsonValue(const std::vector<JsonValue> val)
-    : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
-  for (auto elem : val) {
-    ((std::vector<JsonValue> *)data)->push_back(elem);
+  if (isBool()) {
+    *((bool *)data) = val;
+  } else {
+    clear();
+    type = JsonValueType::boolean;
+    data = new bool(val);
   }
 }
 
-void JsonValue::operator=(const std::vector<JsonValue> val) {
-  clear();
-  type = JsonValueType::list;
-  data = new std::vector<JsonValue>(val);
+JsonValue::JsonValue(Json const &val)
+    : data(new Json(val)), type(JsonValueType::json) {}
+
+void JsonValue::operator=(Json const &val) {
+  if (isJson()) {
+    *((Json *)data) = val;
+  } else {
+    clear();
+    type = JsonValueType::json;
+    data = new Json(val);
+  }
+}
+
+JsonValue::JsonValue(Json &&val) : data(new Json()), type(JsonValueType::json) {
+  *((Json *)data) = std::move(val);
+}
+
+JsonValue::JsonValue(std::vector<JsonValue> const &val)
+    : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
+  *((std::vector<JsonValue> *)data) = val;
+}
+
+void JsonValue::operator=(std::vector<JsonValue> const &val) {
+  if (isList()) {
+    auto thisList = (std::vector<JsonValue> *)data;
+    thisList->clear();
+    *thisList = val;
+  } else {
+    clear();
+    type = JsonValueType::list;
+    data = new std::vector<JsonValue>(val);
+  }
+}
+
+JsonValue::JsonValue(std::vector<JsonValue> &&val)
+    : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
+  *((std::vector<JsonValue> *)data) = std::move(val);
+}
+
+void JsonValue::operator=(std::vector<JsonValue> &&val) {
+  if (isList()) {
+    auto thisList = ((std::vector<JsonValue> *)data);
+    thisList->clear();
+    *thisList = std::move(val);
+  } else {
+    clear();
+    type = JsonValueType::list;
+    data = new std::vector<JsonValue>(std::move(val));
+  }
 }
 
 JsonValue::JsonValue(const std::initializer_list<JsonValue> val)
@@ -130,32 +195,30 @@ void JsonValue::operator=(const std::initializer_list<JsonValue> val) {
   clear();
   type = JsonValueType::list;
   data = new std::vector<JsonValue>();
-  for (auto &elem : val) {
+  for (auto const &elem : val) {
     ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
 
-JsonValue::JsonValue(JsonValue &&other) {
-  clear();
+JsonValue::JsonValue(JsonValue &&other) noexcept {
   type = other.type;
   data = other.data;
   other.data = nullptr;
   other.type = JsonValueType::none;
 }
 
-void JsonValue::operator=(JsonValue &&other) {
+JsonValue &JsonValue::operator=(JsonValue &&other) noexcept {
   clear();
   type = other.type;
   data = other.data;
   other.data = nullptr;
   other.type = JsonValueType::none;
+  return *this;
 }
 
 JsonValue::JsonValue(JsonValue const &other)
     : data(nullptr), type(JsonValueType::none) {
-  clear();
-  type = other.type;
-  switch (type) {
+  switch (other.type) {
   case JsonValueType::integer: {
     data = new int64_t(*((int64_t *)other.data));
     break;
@@ -177,47 +240,8 @@ JsonValue::JsonValue(JsonValue const &other)
     break;
   }
   case JsonValueType::list: {
-    auto vals = (std::vector<JsonValue> *)other.data;
-    data = new std::vector<JsonValue>(*vals);
-    break;
-  }
-  case JsonValueType::null:
-  case JsonValueType::none: {
-    break;
-  }
-  }
-}
-
-void JsonValue::operator=(JsonValue const &other) {
-  clear();
-  type = other.type;
-  switch (type) {
-  case JsonValueType::integer: {
-    data = new int64_t(*((int64_t *)other.data));
-    break;
-  }
-  case JsonValueType::decimal: {
-    data = new double(*((double *)other.data));
-    break;
-  }
-  case JsonValueType::string: {
-    data = new std::string(*((std::string *)other.data));
-    break;
-  }
-  case JsonValueType::boolean: {
-    data = new bool(*((bool *)other.data));
-    break;
-  }
-  case JsonValueType::json: {
-    data = new Json(*((Json *)other.data));
-    break;
-  }
-  case JsonValueType::list: {
-    auto vals = (std::vector<JsonValue> *)other.data;
     data = new std::vector<JsonValue>();
-    for (std::size_t i = 0; i < vals->size(); i++) {
-      ((std::vector<JsonValue> *)data)->push_back(vals->at(i));
-    }
+    *(std::vector<JsonValue> *)data = *((std::vector<JsonValue> *)other.data);
     break;
   }
   case JsonValueType::null:
@@ -225,9 +249,47 @@ void JsonValue::operator=(JsonValue const &other) {
     break;
   }
   }
+  type = other.type;
 }
 
-bool JsonValue::operator==(const JsonValue &other) const {
+JsonValue &JsonValue::operator=(JsonValue const &other) {
+  clear();
+  type = other.type;
+  switch (type) {
+  case JsonValueType::integer: {
+    data = new int64_t(*((int64_t *)other.data));
+    break;
+  }
+  case JsonValueType::decimal: {
+    data = new double(*((double *)other.data));
+    break;
+  }
+  case JsonValueType::string: {
+    data = new std::string(*((std::string *)other.data));
+    break;
+  }
+  case JsonValueType::boolean: {
+    data = new bool(*((bool *)other.data));
+    break;
+  }
+  case JsonValueType::json: {
+    data = new Json(*((Json *)other.data));
+    break;
+  }
+  case JsonValueType::list: {
+    data = new std::vector<JsonValue>();
+    *(std::vector<JsonValue> *)data = *((std::vector<JsonValue> *)other.data);
+    break;
+  }
+  case JsonValueType::null:
+  case JsonValueType::none: {
+    break;
+  }
+  }
+  return *this;
+}
+
+bool JsonValue::operator==(JsonValue const &other) const {
   if (type != other.type) {
     return false;
   }
@@ -364,13 +426,13 @@ bool JsonValue::operator!=(const double val) const {
 
 bool JsonValue::operator==(const char *val) const {
   if (type == JsonValueType::string) {
-    return ((*((std::string *)data)) == val);
+    return ((*((std::string *)data)) == std::string(val));
   }
   return false;
 }
 bool JsonValue::operator!=(const char *val) const {
   if (type == JsonValueType::string) {
-    return ((*((std::string *)data)) != val);
+    return ((*((std::string *)data)) != std::string(val));
   }
   return true;
 }
@@ -561,7 +623,7 @@ std::ostream &operator<<(std::ostream &stream, const JsonValue &val) {
 }
 
 void JsonValue::clear() {
-  if (data) {
+  if (data != nullptr) {
     switch (type) {
     case JsonValueType::string: {
       delete (std::string *)data;
@@ -580,17 +642,11 @@ void JsonValue::clear() {
       break;
     }
     case JsonValueType::json: {
-      ((Json *)data)->clear();
       delete (Json *)data;
       break;
     }
     case JsonValueType::list: {
-      auto vec = (std::vector<JsonValue> *)data;
-      for (auto val : (*vec)) {
-        val.clear();
-      }
-      vec->clear();
-      delete vec;
+      delete (std::vector<JsonValue> *)data;
       break;
     }
     case JsonValueType::null:
@@ -605,25 +661,30 @@ JsonValue::~JsonValue() noexcept { clear(); }
 
 Json::Json() {}
 
-Json::Json(std::string val) {
+Json::Json(std::string val) : keys(), values() {
   auto parser = JsonParser();
   parser.lex(val);
   auto res = parser.parse();
   keys = std::move(res.keys);
   values = std::move(res.values);
+  res.clear();
   setLevel(res.level);
   setSpaces(res.spaces);
 }
 
-Json::Json(Json const &other)
-    : keys(other.keys), values(other.values), level(other.level),
-      spaces(other.spaces) {}
+Json::Json(Json const &other) : keys(), values() {
+  keys = other.keys;
+  values = other.values;
+  level = other.level;
+  spaces = other.spaces;
+}
 
-Json::Json(Json &&other)
-    : keys(other.keys), values(other.values), level(other.level),
-      spaces(other.spaces) {
-  other.keys.clear();
-  other.values.clear();
+Json::Json(Json &&other) noexcept : keys(), values() {
+  keys = std::move(other.keys);
+  values = std::move(other.values);
+  other.clear();
+  level = other.level;
+  spaces = other.spaces;
 }
 
 Json &Json::_(std::string key, JsonValue val) {
@@ -636,26 +697,29 @@ Json &Json::_(std::string key, JsonValue val) {
   return *this;
 }
 
-void Json::operator=(Json const &other) {
+Json &Json::operator=(Json const &other) {
+  clear();
   keys = other.keys;
   values = other.values;
   level = other.level;
   spaces = other.spaces;
+  return *this;
 }
 
-void Json::operator=(Json &&other) {
-  keys = other.keys;
-  values = other.values;
+Json &Json::operator=(Json &&other) noexcept {
+  clear();
+  keys = std::move(other.keys);
+  values = std::move(other.values);
+  other.clear();
   level = other.level;
   spaces = other.spaces;
-  other.keys.clear();
-  other.values.clear();
+  return *this;
 }
 
 void Json::setLevel(unsigned lev) const {
   level = lev;
   for (auto val : values) {
-    if (val.type == JsonValueType::json) {
+    if (val.getType() == JsonValueType::json) {
       (((Json *)(val.data)))->setLevel(lev + 1);
     }
   }
@@ -762,9 +826,6 @@ std::ostream &operator<<(std::ostream &os, const Json &json) {
 }
 
 void Json::clear() noexcept {
-  for (auto val : values) {
-    val.clear();
-  }
   keys.clear();
   values.clear();
 }

@@ -22,9 +22,7 @@ enum class JsonValueType {
 class Json;
 
 class JsonValue {
-protected:
-  friend class Json;
-
+private:
   // The heap allocated data of this JsonValue
   void *data;
 
@@ -32,8 +30,10 @@ protected:
   // data type
   JsonValueType type;
 
-  //
+  // Private constructor to manually assign type and data. This is used only for
   JsonValue(JsonValueType type, void *data);
+
+  friend class Json;
 
 public:
   JsonValue();
@@ -75,12 +75,16 @@ public:
   void operator=(const bool val);
 
   // Json
-  JsonValue(Json val);
-  void operator=(Json val);
+  JsonValue(Json const &val);
+  void operator=(Json const &val);
+  JsonValue(Json &&val);
+  void operator=(Json &&val);
 
   // Vector of JsonValue
-  JsonValue(std::vector<JsonValue> val);
-  void operator=(std::vector<JsonValue> val);
+  JsonValue(std::vector<JsonValue> const &val);
+  void operator=(std::vector<JsonValue> const &val);
+  JsonValue(std::vector<JsonValue> &&val);
+  void operator=(std::vector<JsonValue> &&val);
 
   // initializer_list of JsonValue
   JsonValue(std::initializer_list<JsonValue> val);
@@ -123,11 +127,11 @@ public:
 
   // Copy semantics
   JsonValue(JsonValue const &other);
-  void operator=(JsonValue const &other);
+  JsonValue &operator=(JsonValue const &other);
 
   // Move semantics
-  JsonValue(JsonValue &&other);
-  void operator=(JsonValue &&other);
+  JsonValue(JsonValue &&other) noexcept;
+  JsonValue &operator=(JsonValue &&other) noexcept;
 
   // A none value. This will have no representation in the resultant json
   static JsonValue none();
@@ -191,13 +195,13 @@ public:
 
   Json(Json const &other);
 
-  Json(Json &&other);
+  Json(Json &&other) noexcept;
 
   Json &_(const std::string key, const JsonValue val);
 
-  void operator=(Json const &other);
+  Json &operator=(Json const &other);
 
-  void operator=(Json &&other);
+  Json &operator=(Json &&other) noexcept;
 
   void setSpaces(unsigned spc) const;
 

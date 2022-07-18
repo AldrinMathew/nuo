@@ -20,6 +20,8 @@
             << "\e[1;33m" << name << "\e[0m"                                   \
             << "\n";
 
+auto sample() { return nuo::Json(); }
+
 int main() {
   using nuo::Json;
   using nuo::Maybe;
