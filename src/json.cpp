@@ -7,10 +7,10 @@
 
 namespace nuo {
 
-JsonValue::JsonValue(JsonValueType _type, void *_data)
-    : data(_data), type(_type) {}
+JsonValue::JsonValue(JsonValueType type, void *data)
+    : data(data), type(type) {}
 
-JsonValue JsonValue::none() { return JsonValue(JsonValueType::none, nullptr); }
+JsonValue JsonValue::none() { return {JsonValueType::none, nullptr}; }
 
 JsonValue::operator bool() const { return (type != JsonValueType::none); }
 
@@ -55,6 +55,7 @@ void JsonValue::operator=(const unsigned long long val) {
   }
 }
 
+#if PLATFORM_IS_UNIX
 JsonValue::JsonValue(const uint64_t val)
     : data(new int64_t((int64_t)val)), type(JsonValueType::integer) {}
 
@@ -67,6 +68,7 @@ void JsonValue::operator=(const uint64_t val) {
     data = new int64_t((int64_t)val);
   }
 }
+#endif
 
 JsonValue::JsonValue(const int64_t val)
     : data(new int64_t(val)), type(JsonValueType::integer) {}
@@ -157,9 +159,8 @@ JsonValue::JsonValue(std::vector<JsonValue> const &val)
 
 void JsonValue::operator=(std::vector<JsonValue> const &val) {
   if (isList()) {
-    auto thisList = (std::vector<JsonValue> *)data;
-    thisList->clear();
-    *thisList = val;
+    ((std::vector<JsonValue> *)data)->clear();
+    *((std::vector<JsonValue> *) data) = val;
   } else {
     clear();
     type = JsonValueType::list;
@@ -174,9 +175,8 @@ JsonValue::JsonValue(std::vector<JsonValue> &&val)
 
 void JsonValue::operator=(std::vector<JsonValue> &&val) {
   if (isList()) {
-    auto thisList = ((std::vector<JsonValue> *)data);
-    thisList->clear();
-    *thisList = std::move(val);
+    ((std::vector<JsonValue> *)data)->clear();
+    *((std::vector<JsonValue> *)data) = std::move(val);
   } else {
     clear();
     type = JsonValueType::list;
@@ -186,7 +186,7 @@ void JsonValue::operator=(std::vector<JsonValue> &&val) {
 
 JsonValue::JsonValue(const std::initializer_list<JsonValue> val)
     : data(new std::vector<JsonValue>()), type(JsonValueType::list) {
-  for (auto &elem : val) {
+  for (auto const &elem : val) {
     ((std::vector<JsonValue> *)data)->push_back(elem);
   }
 }
@@ -310,17 +310,15 @@ bool JsonValue::operator==(JsonValue const &other) const {
     return (*((Json *)data)) == (*((Json *)other.data));
   }
   case JsonValueType::list: {
-    auto otherVals = (std::vector<JsonValue> *)other.data;
-    auto vals = (std::vector<JsonValue> *)data;
-    if (otherVals->size() != vals->size()) {
+    if (((std::vector<JsonValue> *)other.data)->size() != ((std::vector<JsonValue> *)data)->size()) {
       return false;
     }
-    for (std::size_t i = 0; i < vals->size(); i++) {
-      if (vals->at(i) != otherVals->at(i)) {
-        return false;
+      for (std::size_t i = 0; i < ((std::vector<JsonValue> *)data)->size(); i++) {
+          if (((std::vector<JsonValue> *)data)->at(i) != ((std::vector<JsonValue> *)other.data)->at(i)) {
+              return false;
+          }
       }
-    }
-    return true;
+      return true;
   }
   case JsonValueType::null:
   case JsonValueType::none: {
@@ -372,6 +370,7 @@ bool JsonValue::operator!=(const unsigned long long val) const {
   return true;
 }
 
+#if PLATFORM_IS_UNIX
 bool JsonValue::operator==(const uint64_t val) const {
   if (isInt()) {
     return ((*((int64_t *)data)) == ((int64_t)val));
@@ -384,6 +383,7 @@ bool JsonValue::operator!=(const uint64_t val) const {
   }
   return true;
 }
+#endif
 
 bool JsonValue::operator==(const int64_t val) const {
   if (isInt()) {

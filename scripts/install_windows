@@ -1,0 +1,5 @@
+cmake --build build/ --target clean
+rm -rf build/*
+cmake -GNinja -S . -B build/ -DCMAKE_BUILD_TYPE=Release
+cd build && time ninja && cd ..
+cmake --build build/ --target install

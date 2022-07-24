@@ -2,3 +2,5 @@ build/
 .vscode/
 rebuild
 .cache/
+cmake-build-debug/
+.idea/

@@ -5,7 +5,15 @@ PROJECT(nuo
         DESCRIPTION "Nuo Library for modern C++"
         HOMEPAGE_URL "https://github.com/aldrinmathew/nuo")
 
-SET(CMAKE_CXX_COMPILER /usr/lib/llvm-14/bin/clang++)
+if(WIN32)
+        add_compile_definitions(PLATFORM_IS_WINDOWS=true)
+        add_compile_definitions(PLATFORM_IS_UNIX=false)
+        #
+else()
+        add_compile_definitions(PLATFORM_IS_WINDOWS=false)
+        add_compile_definitions(PLATFORM_IS_UNIX=true)
+        SET(CMAKE_CXX_COMPILER /usr/lib/llvm-14/bin/clang++)
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL Release)
         SET(IS_RELEASE ON)
@@ -30,6 +38,10 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(DIRECTORY include/nuo DESTINATION include)
-install(DIRECTORY include/nuo DESTINATION include)
+if(WIN32)
+        install(TARGETS ${PROJECT_NAME} DESTINATION C:\\msys64\\clang64\\lib)
+        install(DIRECTORY include/nuo DESTINATION C:\\msys64\\clang64\\include)
+else()
+        install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+        install(DIRECTORY include/nuo DESTINATION include)
+endif()

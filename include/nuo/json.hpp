@@ -50,9 +50,11 @@ public:
   JsonValue(const unsigned long long val);
   void operator=(const unsigned long long val);
 
+#if PLATFORM_IS_UNIX
   // uint64_t
   JsonValue(uint64_t val);
   void operator=(const uint64_t val);
+#endif
 
   // int64_t
   JsonValue(int64_t val);
@@ -101,8 +103,12 @@ public:
   bool operator!=(const unsigned val) const;
   bool operator==(const unsigned long long val) const;
   bool operator!=(const unsigned long long val) const;
+
+#if PLATFORM_IS_UNIX
   bool operator==(const uint64_t val) const;
   bool operator!=(const uint64_t val) const;
+#endif
+
   bool operator==(const int64_t val) const;
   bool operator!=(const int64_t val) const;
   bool operator==(const float val) const;
